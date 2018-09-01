@@ -39,4 +39,6 @@ public class BoardServiceImpl implements BoardService {
 		return dao.listAll();
 	}
 
+	
+// make service
 }
