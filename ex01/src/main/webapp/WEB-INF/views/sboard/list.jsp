@@ -104,7 +104,7 @@
 				alert("처리가 완료되었습니다.");
 			}
 			
-			$(".pagination li a").on("click", function(event){
+			/* $(".pagination li a").on("click", function(event){
 				
 				event.preventDefault();
 				
@@ -115,7 +115,7 @@
 				jobForm.attr("action","/sboard/list").attr("method","get");
 				jobForm.submit();
 				
-			});
+			}); */
 		
 	});
 
