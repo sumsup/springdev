@@ -37,4 +37,9 @@ public class HomeController {
 		// 홈컨트롤러 수정 테스트.
 	}
 	
+	@RequestMapping(value="/test", method=RequestMethod.GET)
+	public void ajaxTest() {
+		
+	}
+	
 }
