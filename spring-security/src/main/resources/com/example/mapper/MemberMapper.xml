@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.MemberMapper">
+	
+	<!-- resultMap은 조인시 결과값을 반환할 테이블 구성을 만든다. -->
+	<resultMap type="com.example.domain.MemberVO" id="memberMap">
+		<id property="userid" column="userid"/>
+			<result property="userid" column="userid"/>
+			<result property="userpw" column="userpw"/>
+			<result property="userName" column="username"/>
+			<result property="regDate" column="regdate"/>
+			<result property="updateDate" column="updatedate"/>
+			
+			<!-- 테이블컬럼에서 결과값이 여러개 나오는 것을 collection으로 지정. -->
+			<!-- 1:N 의 관계를 지정. -->
+			<collection property="authList" resultMap="authMap"></collection>
+	</resultMap>
+	
+	
+	<resultMap type="com.example.domain.AuthVO" id="authMap">
+		<result property="userid" column="userid"/>
+		<result property="auth" column="auth"/>
+	</resultMap>
+	
+	<select id="read" resultMap="memberMap">
+		SELECT
+			mem.userid, userpw, username, enabled, regdate, updatedate, auth
+		FROM
+			tbl_member mem LEFT OUTER JOIN tbl_member_auth auth on mem.userid = auth.userid
+		WHERE
+			mem.userid = #{userid}
+	</select>
+
+</mapper>
