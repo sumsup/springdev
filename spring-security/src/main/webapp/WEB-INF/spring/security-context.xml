@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- <bean id="customPasswordEncoder" class="com.example.security.CustomNoOpPasswordEncoder"></bean> -->
+
+	<bean id="customAccessDenied" class="com.example.security.CustomAccessDeniedHandler"></bean>
+	<bean id="customLoginSuccess" class="com.example.security.CustomLoginSuccessHandler"></bean>
+	<bean id="bcryptPasswordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></bean>
+	<bean id="customUserDetailsService" class="com.example.security.CustomUserDetailsService"></bean>
+
+	<security:http auto-config="true" use-expressions="true">
+	
+		<security:intercept-url pattern="/sample/all" access="permitAll"/>
+		
+		<!-- hasRole은 ROLE을 설정해줌. -->
+		<security:intercept-url pattern="/sample/member" access="hasRole('ROLE_MEMBER')" />
+		<security:intercept-url pattern="/sample/admin" access="hasRole('ROLE_ADMIN')" />
+
+		<!-- 권한 없을시 기본 로그인 페이지로 이동. -->
+		<!-- <security:form-login /> -->
+		
+		<!-- 로그인 페이지 설정. GET방식으로 접근 지정. -->
+		<!-- 아래 설정이 컨트롤러 역할을 한다. -->
+		<!-- 로그인 성공 후 처리. -->
+		<security:form-login login-page="/customLogin" authentication-success-handler-ref="customLoginSuccess"/>
+		
+		<!-- access 접근 거부시 보여줄 페이지. -->
+		<!-- <security:access-denied-handler error-page="/accessError" /> -->
+		
+		<!-- access 접근 거부시 처리할 Bean. -->
+		<security:access-denied-handler ref="customAccessDenied"/>
+		
+		<!-- 로그 아웃시 session 제거 -->
+		<security:logout logout-url="/customLogout" invalidate-session="true" />
+	
+	</security:http>
+	
+	<!-- 유저에게 권한 부여 작업을 하는 authentication-manager -->
+	<security:authentication-manager alias="authenticationManager">
+		<!-- 권한제공자. authentication-provider. user-service-ref 를 설정하면 유저 권한 정보를 가져오는 클래스를 설정할 수 있다. -->
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+		
+			<!-- 
+			<security:user-service>
+				패스워드 인코딩 방식을 없애려면 {noop}를 써준다.
+				<security:user name="member" password="{noop}member" authorities="ROLE_MEMBER"/>
+				admin에는 ROLE을 두개 설정 해줌.
+				<security:user name="admin" password="{noop}admin" authorities="ROLE_MEMBER, ROLE_ADMIN"/>
+			</security:user-service> 
+			-->
+			
+			<!-- 패스워드 인코딩을 처리한단다. -->
+			<!-- <security:password-encoder ref="customPasswordEncoder" /> -->
+			
+			<!-- Bcrypt 인코딩 처리 -->
+			<!-- Service 레이어에서 PasswordEncoder 객체를 이용해서 암호화 해줘야 함. -->
+			<security:password-encoder ref="bcryptPasswordEncoder" />
+			
+			<!-- 서버에 Action이 발생했을때, 자동실행. -->
+			<!-- users-by-username-query : 유저 로그인시 정보 반환 -->
+			<!-- authorities-by-username-query : 유저 로그인시 권환 반환 -->
+			<!-- 
+			<security:jdbc-user-service data-source-ref="dataSource"
+				users-by-username-query="select userid, userpw, enabled from tbl_member where userid = ?"
+				authorities-by-username-query="select userid, auth from tbl_member_auth where userid = ?"			
+			/> -->
+			
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+</beans>
